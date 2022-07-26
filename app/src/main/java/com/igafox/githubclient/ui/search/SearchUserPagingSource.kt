@@ -16,7 +16,7 @@ class SearchUserPagingSource @Inject constructor(
 ) : PagingSource<Int, User>() {
 
     companion object {
-        const val FIRST_PAGE_INDEX = 0
+        const val FIRST_PAGE_INDEX = 1
         const val PAGING_SIZE = 20
     }
 
@@ -36,7 +36,8 @@ class SearchUserPagingSource @Inject constructor(
                     LoadResult.Page(
                         data = result.data,
                         prevKey = null,
-                        nextKey = position + 1
+                        //次のページデータがない場合はnullを返してページング終了
+                        nextKey = (position + 1).takeIf { result.data.isNotEmpty()}
                     )
                 } else {
                     val e = result as Error
