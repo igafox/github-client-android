@@ -1,7 +1,6 @@
 package com.igafox.githubclient.data.repo.remote
 
 import com.igafox.githubclient.api.GitHubApi
-import com.igafox.githubclient.data.model.User
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -22,7 +21,7 @@ class RepoRemoteDataSource internal constructor(
         maxResults: Int
     ): Result<List<Repo>> = withContext(ioDispatcher) {
         return@withContext try {
-            val result = api.getUserRepositorys(userId = query, perPage = maxResults, page = page)
+            val result = api.getUserRepositories(userId = query, perPage = maxResults, page = page)
             Success(result.toList())
         } catch (e: Exception) {
             Error(e)

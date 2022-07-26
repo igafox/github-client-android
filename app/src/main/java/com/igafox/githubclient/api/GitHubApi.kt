@@ -16,7 +16,7 @@ interface GitHubApi {
     ): SearchUsersResponse
 
     @GET("/users/{user}/repos")
-    suspend fun getUserRepositorys(
+    suspend fun getUserRepositories(
         @Path("user") userId:String,
         @Query("per_page") perPage:Int,
         @Query("page") page:Int
