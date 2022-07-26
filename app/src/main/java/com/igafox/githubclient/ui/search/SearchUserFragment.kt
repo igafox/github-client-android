@@ -1,15 +1,11 @@
 package com.igafox.githubclient.ui.search
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,11 +16,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+
 @AndroidEntryPoint
-class SearchUserFragment : Fragment(R.layout.fragment_main) {
+class SearchUserFragment : Fragment(R.layout.fragment_main), SearchView.OnQueryTextListener {
 
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
+
+    lateinit var searchView: SearchView
 
     companion object {
         fun newInstance() = SearchUserFragment()
@@ -36,6 +35,7 @@ class SearchUserFragment : Fragment(R.layout.fragment_main) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -69,9 +69,25 @@ class SearchUserFragment : Fragment(R.layout.fragment_main) {
 
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.setQuery("iga")
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_search_user, menu)
+        val searchItem = menu.findItem(R.id.search)
+        searchView = searchItem.actionView as SearchView
+        searchView.queryHint = "GitHubユーザー名で検索"
+        searchView.setOnQueryTextListener(this)
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        return false
+    }
+    
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        if(query == null) return true
+        viewModel.setQuery(query)
+        searchView.onActionViewExpanded()
+        searchView.clearFocus()
+        return false
     }
 
 }
