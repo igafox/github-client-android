@@ -6,6 +6,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,6 +15,8 @@ import com.igafox.githubclient.data.model.User
 import com.igafox.githubclient.databinding.FragmentMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 
@@ -53,18 +56,43 @@ class SearchUserFragment : Fragment(R.layout.fragment_main), SearchView.OnQueryT
             itemAnimator = null
             setHasFixedSize(true)
             this.layoutManager = LinearLayoutManager(context)
-            this.adapter = pagingAdapter
+            this.adapter = pagingAdapter.withLoadStateFooter(AppLoadStateAdapter())
             val divider = DividerItemDecoration(
                 requireContext(),
                 LinearLayoutManager(requireContext()).orientation
             )
             this.addItemDecoration(divider)
         }
+        //スワイプ更新
+        binding.swiperefresh.setOnRefreshListener {
+            pagingAdapter.refresh()
+        }
 
         lifecycleScope.launch {
             viewModel.pagingFlow.collectLatest { value: PagingData<User> ->
+                binding.swiperefresh.isRefreshing = false
                 pagingAdapter.submitData(value)
             }
+        }
+
+        lifecycleScope.launchWhenCreated {
+            //新しいキーワードが検索された時にリストトップに移動させる処理
+            pagingAdapter
+                .loadStateFlow
+                .distinctUntilChangedBy { it.refresh }
+                .filter { it.refresh is LoadState.NotLoading }
+                .collect {
+                    binding.recyclerView.scrollToPosition(0)
+                }
+        }
+
+        lifecycleScope.launchWhenCreated {
+            //リフラッシュ時のみリフレッシュUI表示する処理
+            pagingAdapter
+                .loadStateFlow
+                .collect {
+                    binding.swiperefresh.isRefreshing = it.refresh is LoadState.Loading
+                }
         }
 
     }
@@ -81,7 +109,7 @@ class SearchUserFragment : Fragment(R.layout.fragment_main), SearchView.OnQueryT
     override fun onQueryTextChange(newText: String?): Boolean {
         return false
     }
-    
+
     override fun onQueryTextSubmit(query: String?): Boolean {
         if(query == null) return true
         viewModel.setQuery(query)
