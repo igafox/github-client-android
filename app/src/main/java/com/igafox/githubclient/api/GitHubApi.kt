@@ -22,4 +22,11 @@ interface GitHubApi {
         @Query("page") page:Int
     ):GetUserRepositories
 
+    @GET("/user/")
+    suspend fun getUser(
+        @Path("user") userId:String,
+        @Query("per_page") perPage:Int,
+        @Query("page") page:Int
+    ):GetUserRepositories
+
 }

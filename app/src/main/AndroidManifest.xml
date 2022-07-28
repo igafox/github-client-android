@@ -17,10 +17,10 @@
         android:theme="@style/Theme.GitHubClient"
         tools:targetApi="31">
         <activity
-            android:name=".ui.search.SearchUserActivity"
+            android:name=".ui.userdetail.UserDetailActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.GitHubClient">
+            android:theme="@style/Theme.GitHubClient.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

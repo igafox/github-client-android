@@ -4,4 +4,7 @@
     <style name="Theme.GitHubClient" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
     </style>
 
+    <style name="Theme.GitHubClient.NoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    </style>
+
 </resources>
