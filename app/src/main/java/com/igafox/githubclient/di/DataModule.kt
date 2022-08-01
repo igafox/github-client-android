@@ -1,6 +1,7 @@
 package com.igafox.githubclient.di
 
 import com.igafox.githubclient.AppConstants
+import com.igafox.githubclient.BuildConfig
 import com.igafox.githubclient.api.GitHubApi
 import com.igafox.githubclient.data.repo.RepoDataSource
 import com.igafox.githubclient.data.repo.RepoRepository
@@ -74,8 +75,6 @@ object DataSourceModule {
         return RepoRemoteDataSource(api)
     }
 
-
-
 }
 
 @Module
@@ -99,7 +98,7 @@ object ApiModule {
     fun provideOkHttp(): OkHttpClient {
         return OkHttpClient.Builder().addInterceptor { chain ->
             val newRequest = chain.request().newBuilder()
-                .addHeader("Authorization", "token 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")
+                .addHeader("Authorization", "token ${BuildConfig.GITHUB_API_KEY}")
                 .build()
             chain.proceed(newRequest)
         }.build()
