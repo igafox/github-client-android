@@ -141,8 +141,8 @@ class UserDetailFragment : Fragment(R.layout.fragment_main) {
         //エラーハンドリング
         if (status == UserDetailViewStatus.FAILD) {
             errorSnackbar = view?.let {
-                Snackbar.make(it, "エラーが発生しました", Snackbar.LENGTH_INDEFINITE)
-                    .setAction("再試行") { refresh() }
+                Snackbar.make(it, R.string.fetch_error, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry) { refresh() }
             }
             errorSnackbar?.show()
         } else {

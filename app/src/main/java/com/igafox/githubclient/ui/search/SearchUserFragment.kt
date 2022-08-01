@@ -107,7 +107,7 @@ class SearchUserFragment : Fragment(R.layout.fragment_main), SearchView.OnQueryT
         inflater.inflate(R.menu.menu_search_user, menu)
         val searchItem = menu.findItem(R.id.search)
         searchView = searchItem.actionView as SearchView
-        searchView.queryHint = "GitHubユーザー名で検索"
+        searchView.queryHint = getString(R.string.search_by_github_id)
         searchView.setOnQueryTextListener(this)
     }
 
