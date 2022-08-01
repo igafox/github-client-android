@@ -2,6 +2,7 @@ package com.igafox.githubclient.api
 
 import com.igafox.githubclient.api.response.GetUserRepositories
 import com.igafox.githubclient.api.response.SearchUsersResponse
+import com.igafox.githubclient.data.model.User
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -22,11 +23,9 @@ interface GitHubApi {
         @Query("page") page:Int
     ):GetUserRepositories
 
-    @GET("/user/")
+    @GET("/users/{name}")
     suspend fun getUser(
-        @Path("user") userId:String,
-        @Query("per_page") perPage:Int,
-        @Query("page") page:Int
-    ):GetUserRepositories
+        @Path("name") name:String,
+    ):User
 
 }

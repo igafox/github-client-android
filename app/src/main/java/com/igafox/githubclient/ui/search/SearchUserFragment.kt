@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.igafox.githubclient.R
 import com.igafox.githubclient.data.model.User
 import com.igafox.githubclient.databinding.FragmentMainBinding
+import com.igafox.githubclient.ui.userdetail.UserDetailActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
@@ -34,7 +35,9 @@ class SearchUserFragment : Fragment(R.layout.fragment_main), SearchView.OnQueryT
 
     private val viewModel: SearchUserViewModel by viewModels()
 
-    private val pagingAdapter = SearchUserPagingAdapter()
+    private val pagingAdapter = SearchUserPagingAdapter{ user ->
+        showUserDetail(user)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +66,7 @@ class SearchUserFragment : Fragment(R.layout.fragment_main), SearchView.OnQueryT
             )
             this.addItemDecoration(divider)
         }
+
         //スワイプ更新
         binding.swiperefresh.setOnRefreshListener {
             pagingAdapter.refresh()
@@ -97,6 +101,7 @@ class SearchUserFragment : Fragment(R.layout.fragment_main), SearchView.OnQueryT
 
     }
 
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_search_user, menu)
@@ -111,11 +116,18 @@ class SearchUserFragment : Fragment(R.layout.fragment_main), SearchView.OnQueryT
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
-        if(query == null) return true
+        if (query == null) return true
         viewModel.setQuery(query)
         searchView.onActionViewExpanded()
         searchView.clearFocus()
         return false
     }
+
+    private fun showUserDetail(user: User) {
+        UserDetailActivity.createIntent(requireContext(),user.login).apply {
+            startActivity(this)
+        }
+    }
+
 
 }

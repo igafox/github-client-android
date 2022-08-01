@@ -20,6 +20,9 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        //環境変数(gradle.properties)
+        buildConfigField("String", "GITHUB_API_KEY", "\"${githubApiToken}\"")
     }
 
     buildTypes {

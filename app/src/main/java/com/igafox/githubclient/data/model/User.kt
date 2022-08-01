@@ -92,4 +92,5 @@ data class User(
         @SerializedName("space")
         val space: Int
     )
+
 }

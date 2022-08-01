@@ -7,17 +7,22 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.paging.PagingData
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.snackbar.Snackbar
+import com.igafox.githubclient.BR
 import com.igafox.githubclient.R
+import com.igafox.githubclient.data.model.Repo
 import com.igafox.githubclient.databinding.FragmentUserDetailBinding
+import com.igafox.githubclient.ui.extension.DpToPx
 import com.igafox.githubclient.ui.search.AppLoadStateAdapter
-import com.igafox.githubclient.ui.search.SearchUserPagingAdapter
+import com.igafox.githubclient.ui.view.SpaceItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 
 @AndroidEntryPoint
@@ -26,17 +31,34 @@ class UserDetailFragment : Fragment(R.layout.fragment_main) {
     private var _binding: FragmentUserDetailBinding? = null
     private val binding get() = _binding!!
 
+    private var errorSnackbar: Snackbar? = null
+
     companion object {
-        fun newInstance() = UserDetailFragment()
+
+        private const val PARAM_USER_ID = "user_id"
+
+        fun newInstance(userId: String): UserDetailFragment {
+            return UserDetailFragment().apply {
+                var bundle = Bundle()
+                bundle.putString(PARAM_USER_ID, userId)
+                arguments = bundle
+            }
+        }
+
     }
 
     private val viewModel: UserDetailViewModel by viewModels()
 
-    private val pagingAdapter = SearchUserPagingAdapter()
+    private val pagingAdapter = UserDetailPagingAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
+
+        //引数受け取り
+        val userId = arguments?.getString("user_id")
+        if (userId != null) {
+            viewModel.setUserName(userId)
+        }
     }
 
     override fun onCreateView(
@@ -44,6 +66,8 @@ class UserDetailFragment : Fragment(R.layout.fragment_main) {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentUserDetailBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.setVariable(BR.viewModel, viewModel)
         return binding.root
     }
 
@@ -55,26 +79,27 @@ class UserDetailFragment : Fragment(R.layout.fragment_main) {
             setHasFixedSize(true)
             this.layoutManager = LinearLayoutManager(context)
             this.adapter = pagingAdapter.withLoadStateFooter(AppLoadStateAdapter())
-            val divider = DividerItemDecoration(
-                requireContext(),
-                LinearLayoutManager(requireContext()).orientation
-            )
-            this.addItemDecoration(divider)
+            addItemDecoration(SpaceItemDecoration(8.DpToPx(context)))
         }
-//        //スワイプ更新
-//        binding.swiperefresh.setOnRefreshListener {
-//            pagingAdapter.refresh()
-//        }
+
+        binding.appBarLayout.addOnOffsetChangedListener(
+            AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
+                val per = abs(verticalOffset).toFloat() / appBarLayout.totalScrollRange
+                binding.headerContent.alpha = (1 - per)
+            })
+
+        //スワイプ更新
+        binding.swipeLayout.setOnRefreshListener {
+            refresh()
+        }
 
         lifecycleScope.launch {
-            viewModel.pagingFlow.collectLatest { value: PagingData<SearchUser> ->
-//                binding.swiperefresh.isRefreshing = false
+            viewModel.pagingFlow.collectLatest { value: PagingData<Repo> ->
                 pagingAdapter.submitData(value)
             }
         }
 
         lifecycleScope.launchWhenCreated {
-            //新しいキーワードが検索された時にリストトップに移動させる処理
             pagingAdapter
                 .loadStateFlow
                 .distinctUntilChangedBy { it.refresh }
@@ -84,41 +109,47 @@ class UserDetailFragment : Fragment(R.layout.fragment_main) {
                 }
         }
 
+        //エラーハンドリング
         lifecycleScope.launchWhenCreated {
-            //リフラッシュ時のみリフレッシュUI表示する処理
+            viewModel.status.collectLatest { status ->
+                showStatus(status)
+            }
+        }
+
+        //ページングリフレッシュ時のみSwipeLayoutを表示する処理
+        lifecycleScope.launchWhenCreated {
             pagingAdapter
                 .loadStateFlow
                 .collect {
-//                    binding.swiperefresh.isRefreshing = it.refresh is LoadState.Loading
+                    binding.swipeLayout.isRefreshing = it.refresh is LoadState.Loading
                 }
         }
 
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.setQuery("iga")
+    private fun refresh() {
+        viewModel.loadUser()
+        pagingAdapter.refresh()
     }
 
-//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-//        super.onCreateOptionsMenu(menu, inflater)
-//        inflater.inflate(R.menu.menu_search_user, menu)
-//        val searchItem = menu.findItem(R.id.search)
-//        searchView = searchItem.actionView as SearchView
-//        searchView.queryHint = "GitHubユーザー名で検索"
-//        searchView.setOnQueryTextListener(this)
-//    }
+    private fun showStatus(status: UserDetailViewStatus?) {
+        status ?: return
 
-//    override fun onQueryTextChange(newText: String?): Boolean {
-//        return false
-//    }
-//
-//    override fun onQueryTextSubmit(query: String?): Boolean {
-//        if(query == null) return true
-//        viewModel.setQuery(query)
-//        searchView.onActionViewExpanded()
-//        searchView.clearFocus()
-//        return false
-//    }
+        //読み込み時はSwipeLayout表示
+        //binding.swipeLayout.isRefreshing = (status == UserDetailViewStatus.LOADING)
+
+        //エラーハンドリング
+        if (status == UserDetailViewStatus.FAILD) {
+            errorSnackbar = view?.let {
+                Snackbar.make(it, "エラーが発生しました", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("再試行") { refresh() }
+            }
+            errorSnackbar?.show()
+        } else {
+            errorSnackbar?.dismiss()
+            errorSnackbar = null
+        }
+
+    }
 
 }

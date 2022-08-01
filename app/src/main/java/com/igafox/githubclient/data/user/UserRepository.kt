@@ -11,4 +11,8 @@ interface UserRepository {
         maxResults: Int
     ): Result<List<User>>
 
+    suspend fun getUserById(
+        name:String
+    ):Result<User>
+
 }

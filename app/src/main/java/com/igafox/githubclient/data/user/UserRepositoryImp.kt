@@ -15,4 +15,8 @@ class UserRepositoryImp internal constructor(
         return remoteDataSource.getUsersByName(query,page,maxResults)
     }
 
+    override suspend fun getUserById(name: String): Result<User> {
+        return remoteDataSource.getUserById(name)
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.igafox.githubclient.data.model
 
 import com.google.gson.annotations.SerializedName
+import kotlin.math.floor
 
 data class Repo(
     @SerializedName("allow_forking")
@@ -211,4 +212,13 @@ data class Repo(
         @SerializedName("url")
         val url: String
     )
+
+    fun getFormatedStar(): String {
+        if(stargazersCount > 1000) {
+            return floor(stargazersCount / 1000.0).toString()
+        } else {
+            return stargazersCount.toString()
+        }
+    }
+
 }

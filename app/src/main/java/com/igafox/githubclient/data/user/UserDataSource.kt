@@ -11,4 +11,8 @@ interface UserDataSource {
         maxResults: Int
     ): Result<List<User>>
 
+    suspend fun getUserById(
+        name:String
+    ):Result<User>
+
 }

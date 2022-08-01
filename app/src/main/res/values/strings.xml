@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">GitHubClient</string>
+
+    <string name="follow">フォロー</string>
+    <string name="follower">フォロワー</string>
+
 </resources>

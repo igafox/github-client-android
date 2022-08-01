@@ -28,4 +28,12 @@ class UserRemoteDataSource internal constructor(
         }
     }
 
+    override suspend fun getUserById(name: String): Result<User> = withContext(ioDispatcher) {
+        return@withContext try {
+            val result = api.getUser(name)
+            Success(result)
+        } catch (e: Exception) {
+            Error(e)
+        }
+    }
 }
