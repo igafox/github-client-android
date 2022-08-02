@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 class UserDetailPagingSource @Inject constructor(
     private val repoRepository: RepoRepository,
-    private val userName: String,
+    private val userId: String,
 ) : PagingSource<Int, Repo>() {
 
     companion object {
@@ -31,7 +31,7 @@ class UserDetailPagingSource @Inject constructor(
         withContext(Dispatchers.IO) {
             val position = params.key ?: FIRST_PAGE_INDEX
             return@withContext try {
-                val result = repoRepository.getReposByUserName(userName, position, PAGING_SIZE)
+                val result = repoRepository.getReposByUserName(userId, position, PAGING_SIZE)
                 if (result is Success) {
                     LoadResult.Page(
                         data = result.data,

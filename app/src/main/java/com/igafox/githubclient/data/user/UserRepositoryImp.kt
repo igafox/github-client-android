@@ -7,16 +7,16 @@ class UserRepositoryImp internal constructor(
     private val remoteDataSource: UserDataSource
 ): UserRepository {
 
-    override suspend fun getUsersByName(
+    override suspend fun getUsersByKeyword(
         query: String,
         page: Int,
         maxResults: Int
     ): Result<List<User>> {
-        return remoteDataSource.getUsersByName(query,page,maxResults)
+        return remoteDataSource.getUsersByKeyword(query,page,maxResults)
     }
 
-    override suspend fun getUserById(name: String): Result<User> {
-        return remoteDataSource.getUserById(name)
+    override suspend fun getUserById(userId: String): Result<User> {
+        return remoteDataSource.getUserById(userId)
     }
 
 }

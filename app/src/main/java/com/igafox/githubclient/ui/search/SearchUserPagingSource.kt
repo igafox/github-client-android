@@ -31,7 +31,7 @@ class SearchUserPagingSource @Inject constructor(
         withContext(Dispatchers.IO) {
             val position = params.key ?: FIRST_PAGE_INDEX
             return@withContext try {
-                val result = userRepository.getUsersByName(query, position, PAGING_SIZE)
+                val result = userRepository.getUsersByKeyword(query, position, PAGING_SIZE)
                 if (result is Success) {
                     LoadResult.Page(
                         data = result.data,

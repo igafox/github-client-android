@@ -15,7 +15,7 @@ class UserRemoteDataSource internal constructor(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : UserDataSource {
 
-    override suspend fun getUsersByName(
+    override suspend fun getUsersByKeyword(
         query: String,
         page: Int,
         maxResults: Int
@@ -28,9 +28,9 @@ class UserRemoteDataSource internal constructor(
         }
     }
 
-    override suspend fun getUserById(name: String): Result<User> = withContext(ioDispatcher) {
+    override suspend fun getUserById(userId: String): Result<User> = withContext(ioDispatcher) {
         return@withContext try {
-            val result = api.getUser(name)
+            val result = api.getUser(userId)
             Success(result)
         } catch (e: Exception) {
             Error(e)

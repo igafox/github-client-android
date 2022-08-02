@@ -5,14 +5,14 @@ import com.igafox.githubclient.data.Result
 
 interface UserRepository {
 
-    suspend fun getUsersByName(
+    suspend fun getUsersByKeyword(
         query: String,
         page: Int,
         maxResults: Int
     ): Result<List<User>>
 
     suspend fun getUserById(
-        name:String
+        userId:String
     ):Result<User>
 
 }

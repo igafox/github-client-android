@@ -16,16 +16,16 @@ interface GitHubApi {
         @Query("page") page:Int
     ): SearchUsersResponse
 
-    @GET("/users/{user}/repos")
+    @GET("/users/{userId}/repos")
     suspend fun getUserRepositories(
-        @Path("user") userId:String,
+        @Path("userId") userId:String,
         @Query("per_page") perPage:Int,
         @Query("page") page:Int
     ):GetUserRepositories
 
-    @GET("/users/{name}")
+    @GET("/users/{user}")
     suspend fun getUser(
-        @Path("name") name:String,
+        @Path("userId") userId:String,
     ):User
 
 }
