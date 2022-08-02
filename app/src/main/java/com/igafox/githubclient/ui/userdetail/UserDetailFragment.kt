@@ -1,7 +1,9 @@
 package com.igafox.githubclient.ui.userdetail
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -49,7 +51,9 @@ class UserDetailFragment : Fragment(R.layout.fragment_main) {
 
     private val viewModel: UserDetailViewModel by viewModels()
 
-    private val pagingAdapter = UserDetailPagingAdapter()
+    private val pagingAdapter = UserDetailPagingAdapter { repo ->
+        showRepoDetail(repo)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -150,6 +154,14 @@ class UserDetailFragment : Fragment(R.layout.fragment_main) {
             errorSnackbar = null
         }
 
+    }
+
+    private fun showRepoDetail(repo:Repo) {
+        if(repo.htmlUrl.isBlank()) return
+
+        val customTabsIntent = CustomTabsIntent.Builder()
+            .build()
+        customTabsIntent.launchUrl(requireContext(), Uri.parse(repo.htmlUrl))
     }
 
 }
