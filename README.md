@@ -4,7 +4,7 @@ This app is a GitHub user search app using GitHubApi.
 
 # Getting Start
 
-Set the API key in gradle.propeties.
+Set the GitHubPersonalAccessToken in gradle.propeties.
 ```
-githubApiToken="hogehogehoge"
+githubApiToken=GITHUB_PERSONAL_ACCESS_TOKEN
 ```
