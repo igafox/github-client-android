@@ -5,6 +5,6 @@
     <string name="follower">フォロワー</string>
     <string name="retry">再試行</string>
     <string name="fetch_error">読み込みエラーが発生しました</string>
-    <string name="search_by_github_id">GitHubユーザー名で検索</string>
+    <string name="search_by_github_id">GitHubユーザー名またはIDで検索</string>
 
 </resources>
